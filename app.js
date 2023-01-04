@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+require('dotenv').config();
 
 const userRouter = require('./src/routers/userRouter');
 
@@ -22,5 +23,11 @@ app.use((req, res) => {
 	});
 
 });
+
+app.use((err, req, res, next) => {
+	const errorCode = err.code || 500;
+	console.error(err);
+	return res.status(errorCode).json({ status: false, message: err.message })
+})
 
 module.exports = app;
