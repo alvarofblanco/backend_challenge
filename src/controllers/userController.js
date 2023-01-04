@@ -49,13 +49,14 @@ const login = async (req, res, next) => {
 	return res.status(200).json({ message: 'Login ok', token });
 }
 
+// Shows the user data
 const userData = async (req, res, next) => {
 	// Gets the userId from the request
 	const { userId } = req;
 	let data;
 	try {
+		// Fetches de user data from the "database"
 		data = await getUserById(userId);
-		delete data.password;
 	} catch (e) {
 		return next(e);
 	}

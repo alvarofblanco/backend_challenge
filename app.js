@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const notesRouter = require('./src/routers/notesRouter');
 require('dotenv').config();
 
 const userRouter = require('./src/routers/userRouter');
@@ -14,7 +15,9 @@ app.use(express.json())
 
 app.get('/', (req, res) => res.send('Hello, World!'));
 
+// Add the routes to the server
 app.use('/api/auth', userRouter);
+app.use('/api/notes', notesRouter);
 
 app.use((req, res) => {
 	return res.status(404).json({
