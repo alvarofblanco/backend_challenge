@@ -8,6 +8,9 @@ const { createId } = require('../lib/utils')
 // Import users "database"
 const users = require('../data/users.json');
 
+// notes file path
+const filePath = path.join(__dirname, '..', 'data', 'users.json');
+
 // Gets the user object reading it from a json file with a promise for simutaling async calls
 const getUserById = async (userId) => {
 	console.log('userId', userId)
@@ -55,8 +58,9 @@ const createNewUser = async (user) => {
 
 // Checks username/password againts DB
 const authenticateUser = async ({ username, password }) => {
+	const users = JSON.parse(await fs.promises.readFile(filePath, { encoding: 'utf8' }))
 	const user = users.find(x => x.username === username);
-	console.log('pass', user.password);
+	console.log('pass', user);
 	console.log('password', password)
 
 	// Check if user exists or if the passwords matches

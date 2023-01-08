@@ -7,7 +7,7 @@ git clone && cd backend_challenge
 ```
 Create .env file with the JWT secret
 ```
-echo TOKEN_SECRET=$(echo $RANDOM | base64| head -c 20; echo) > .env
+cp .env.example .env
 ```
 Install the packages
 ```

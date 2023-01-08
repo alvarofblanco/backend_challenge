@@ -11,6 +11,7 @@
     "morgan": "1.10.0"
   },
   "scripts": {
+    "start": "node index.js",
     "dev": "nodemon index.js",
     "tdd": "NODE_ENV=test jest --watchAll --verbose --testTimeout=15000"
   },

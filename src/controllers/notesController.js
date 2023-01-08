@@ -1,4 +1,4 @@
-const { updateNoteInDB, addNoteToDB, getAllNotesFromUser, getNoteByIdFromDB } = require("../services/notesServices");
+const { updateNoteInDB, addNoteToDB, getAllNotesFromUser, getNoteByIdFromDB, deleteNoteInDb } = require("../services/notesServices");
 
 const createNote = async (req, res, next) => {
 	// Extract json body content
@@ -67,8 +67,6 @@ const updateNote = async (req, res, next) => {
 	let updatedNote;
 	try {
 		// Validations
-		console.log('title', title);
-		console.log('body', !body);
 		if (!title || !body) {
 			const error = new Error('Title or body missing!');
 			error.code = 400;
@@ -81,11 +79,26 @@ const updateNote = async (req, res, next) => {
 	} catch (e) {
 		return next(e)
 	}
-
+	// Return if no errors founded
 	return res.json({ message: 'Update OK', data: updatedNote });
 }
 
 const deleteNote = async (req, res, next) => {
+	// Get the userId from the jwt
+	const { userId } = req;
+
+	// Get the noteId to be deleted from params
+	const { noteId } = req.params
+
+	try {
+
+		// Delete the note
+		await deleteNoteInDb(userId, noteId);
+
+	} catch (e) {
+		// Return error
+		return next(e);
+	}
 	return res.json({ message: 'Delete Note OK', noteId: Number(req.params.noteId) });
 }
 

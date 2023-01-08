@@ -28,7 +28,8 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-	const errorCode = err.code || 500;
+	let errorCode = err.code || 500;
+	if (isNaN(errorCode)) errorCode = 500;
 	console.error(err);
 	return res.status(errorCode).json({ status: false, message: err.message })
 })
