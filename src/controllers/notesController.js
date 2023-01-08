@@ -1,17 +1,88 @@
+const { updateNoteInDB, addNoteToDB, getAllNotesFromUser, getNoteByIdFromDB } = require("../services/notesServices");
+
 const createNote = async (req, res, next) => {
-	return res.json({ message: 'create note OK' });
+	// Extract json body content
+	const { title, body } = req.body;
+
+	let newNote;
+
+	try {
+		// Validate input
+		if (!title && !body) {
+			const error = new Error('Missing body or title');
+			error.code = 400;
+			throw error;
+		}
+
+		// Create the new note
+		newNote = await addNoteToDB({ title, body, userId: req.userId })
+	} catch (e) {
+		return next(e)
+	}
+	return res.status(201).json({ message: 'Note Created!', data: newNote })
 }
 
 const listAllNotes = async (req, res, next) => {
-	return res.json({ message: 'Get All Notes OK' });
+	// Gets logged userId from request
+	const { userId } = req;
+	let notes;
+	try {
+		// Gets the notes from the DB
+		notes = await getAllNotesFromUser(userId);
+	} catch (e) {
+		// Invoke global error handler
+		return next(e);
+	}
+	// Return the notes if no errors 
+	return res.status(200).json({ message: 'Get All Notes from User', data: notes })
 }
 
 const getNoteById = async (req, res, next) => {
-	return res.json({ message: 'Get Note By ID OK', noteId: Number(req.params.noteId) });
+	// Get the values from the params
+	const { noteId } = req.params;
+	const { userId } = req;
+
+	// Return data
+	let note;
+
+	try {
+		// Get the note from database
+		note = await getNoteByIdFromDB(noteId, userId);
+	} catch (e) {
+		return next(e);
+	}
+	// Return the note if no errors
+	return res.json({ message: 'Get Note By ID OK', data: note });
 }
 
 const updateNote = async (req, res, next) => {
-	return res.json({ message: 'Update Not OK', noteId: Number(req.params.noteId) });
+	// Get the userId from jwt
+	const { userId } = req;
+	// Get the note id from the URI params
+	const { noteId } = req.params;
+	// Gets the title and body from the body
+	const { title, body } = req.body;
+
+	// Return data
+	let updatedNote;
+	try {
+		// Validations
+		console.log('title', title);
+		console.log('body', !body);
+		if (!title || !body) {
+			const error = new Error('Title or body missing!');
+			error.code = 400;
+			throw error;
+		}
+
+		// update the note
+		updatedNote = await updateNoteInDB(title, body, userId, noteId);
+
+	} catch (e) {
+		return next(e)
+	}
+
+	return res.json({ message: 'Update OK', data: updatedNote });
 }
 
 const deleteNote = async (req, res, next) => {
