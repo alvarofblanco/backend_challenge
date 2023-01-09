@@ -33,6 +33,7 @@ const getNoteByIdFromDB = async (noteId, userId) => {
 	return note;
 }
 
+// Set active = false to note
 const deleteNoteInDb = async (userId, noteId) => {
 	// Note to delete
 	let noteToDelete
@@ -51,7 +52,14 @@ const deleteNoteInDb = async (userId, noteId) => {
 		noteToDelete = notes.filter(filterFunction)[0];
 
 		// New notes
-		notes = notes.filter((note) => note.userId !== userId && note.id !== noteId);
+		notes = notes.filter((note) => note.id !== noteId);
+
+		// Check if the note exists
+		if (!noteToDelete) {
+			const error = new Error('Note not found');
+			error.code = 404;
+			throw error;
+		}
 
 		// Delete the note
 		noteToDelete.active = false;
@@ -84,12 +92,19 @@ const updateNoteInDB = async (title, body, userId, noteId) => {
 	try {
 		// read from the file
 		notes = JSON.parse(await fs.promises.readFile(filePath, { encoding: 'utf8' }))
+		console.log('notes', notes);
 
 		// Filter the note to update
 		noteToUpdate = notes.filter(filterFunction)[0];
+		if (!noteToUpdate) {
+			const error = new Error('Note not found');
+			error.code = 404;
+			throw error;
+		}
 
 		// new notes
 		notes = notes.filter((note) => note.id !== noteId)
+		console.log('new notes', notes);
 
 		// Update the note
 		noteToUpdate.body = body;
@@ -100,7 +115,6 @@ const updateNoteInDB = async (title, body, userId, noteId) => {
 		notes.push(noteToUpdate);
 
 		// Save the array file
-
 		await fs.promises.writeFile(filePath, JSON.stringify(notes));
 
 	} catch (e) {
@@ -117,11 +131,10 @@ const addNoteToDB = async (note) => {
 	// Generates an Id for the new Note and timestamps
 	const now = moment().format('YYYY-MM-DD HH:mm:ss');
 	let newNote = { id: createId(), createdAt: now, updatedAt: now, active: true, ...note };
-	notes.push(newNote);
 	try {
-		// Build the path file to the json file
+		let notes = JSON.parse(await fs.promises.readFile(filePath, { encoding: 'utf8' }));
 
-
+		notes.push(newNote);
 		// Saves the updated notes array to the notes "table"
 		await fs.promises.writeFile(filePath, JSON.stringify(notes));
 	} catch (e) {
@@ -139,11 +152,13 @@ const getAllNotesFromUser = async (userId) => {
 	let notesFromUser;
 
 	try {
+		// Get the notes from the file
 		notes = JSON.parse(await fs.promises.readFile(filePath, { encoding: 'utf8' }));
-		console.log('notes', notes)
 
+		// Filter the notes from the user
 		notesFromUser = notes.filter(x => x.userId === userId && x.active === true)
 
+		// CHeck if notes exists
 		if (notesFromUser.length < 1) {
 			const error = new Error('Notes not found');
 			error.code = 404;

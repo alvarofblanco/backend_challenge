@@ -99,7 +99,7 @@ const deleteNote = async (req, res, next) => {
 		// Return error
 		return next(e);
 	}
-	return res.json({ message: 'Delete Note OK', noteId: Number(req.params.noteId) });
+	return res.json({ message: 'Delete Note OK' });
 }
 
 module.exports = { createNote, listAllNotes, getNoteById, getNoteById, updateNote, deleteNote }
