@@ -5,11 +5,13 @@ const signUp = async (req, res, next) => {
 	// Extract json body content
 	const { username, password } = req.body;
 
+	// Saves the new user
 	let newUser;
+
 
 	try {
 		// Validate input
-		if (!username && !password) {
+		if (!username || !password) {
 			const error = new Error('Missing username and/or password');
 			error.code = 400;
 			throw error;
@@ -39,7 +41,16 @@ const login = async (req, res, next) => {
 	const { username, password } = req.body;
 	// Token to be sended to the user if auth is OK
 	let token;
+
 	try {
+		// Validate input
+		if (!username || !password) {
+			const error = new Error('Missing username and/or password');
+			error.code = 400;
+			throw error;
+		}
+
+		// Generates a jwt
 		token = await authenticateUser({ username, password })
 	} catch (e) {
 		// Throws the error to the global error handler

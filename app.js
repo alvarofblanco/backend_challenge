@@ -1,5 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express')
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./src/data/swagger.yaml');
+
 const notesRouter = require('./src/routers/notesRouter');
 require('dotenv').config();
 
@@ -13,11 +17,12 @@ app.use(morgan('dev'));
 // Accept json body
 app.use(express.json())
 
-app.get('/', (req, res) => res.send('Hello, World!'));
-
 // Add the routes to the server
 app.use('/api/auth', userRouter);
 app.use('/api/notes', notesRouter);
+
+// Swagger doc
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((req, res) => {
 	return res.status(404).json({
